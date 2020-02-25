@@ -58,7 +58,7 @@ class RandomShootingPlanner(nn.Module):
         best_idx =torch.argmax(rewards).item()
         best_action_trajectory = actions[:,best_idx,:]
         best_action = best_action_trajectory[0,:]
-        return best_action
+        return best_action.numpy()
 
 
     def perform_rollout(self,current_state, actions):

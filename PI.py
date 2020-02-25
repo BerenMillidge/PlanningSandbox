@@ -38,6 +38,7 @@ class PIPlanner(nn.Module):
             self.env._env.state = self.env._env.state_from_obs(current_state)
             for t in range(self.plan_horizon):
                 action = self.action_trajectory[t].cpu() + noise[k,t,:]
+                action = action.numpy()
                 s, reward, _ = self.env.step(action)
                 costs[k,:] -= reward
         return None, costs.to(self.device)
@@ -90,4 +91,4 @@ class PIPlanner(nn.Module):
         self.action_trajectory = torch.roll(self.action_trajectory,-1)
         self.action_trajectory[self.plan_horizon-1] = 0
         #print('action: ',action.item())
-        return action
+        return action.numpy()

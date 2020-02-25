@@ -1,9 +1,3 @@
-# the goal of this is just to test how well planners do on various environments when they have access to the true environmental states
-#ultimately I want to turn this into a general sandbox for experimenting an visualizing with different continuous action planners
-#so I can really understand the differences in the algorithms and potentially make improvements which would be good
-#also will end up as a repo of implementations of different algorithms
-#first test is just to get the baselines sorted out so I can compare PI vs CEM on a variety of tasks given the real environment and rewards
-#then I can plan my own versions and improvements
 
 import numpy as np
 import torch
@@ -13,33 +7,50 @@ import time
 from RandomShooting import RandomShootingPlanner
 from PI import PIPlanner
 from CEM import CEMPlanner
+from copy import deepcopy
 
 from baselines.envs import TorchEnv, const
 
-#serously, getting a good mountain car planning algorithm to work is HARD!
-# it is majorly sparse!
-
 plan_horizon = 20
-N_samples = 100
+N_samples = 500
 action_noise_sigma=1
+top_candidates = 10
+N_iterations = 1
 
-env = TorchEnv("pendulum",200)
-e = gym.make("Pendulum-v0")
+env = TorchEnv("LunarLanderContinuous",200)
 s = env.reset()
-s = e.reset()
-#planner = RandomShootingPlanner(env, plan_horizon,N_samples, action_noise_sigma,discount_factor = 0.9)
-planner = PIPlanner(env, plan_horizon, N_samples, lambda_=5, noise_mu=0,noise_sigma=1)
+"""sorig = deepcopy(s)
+for j in range(10):
+    print("RESETTING")
+    for i in range(50):
+        a = env.action_space.sample()
+        print(a)
+        print(type(a))
+        s,r,done = env.step(a)
+        env.render()
+    print("ORIGINAL s: ", sorig)
+    print("state: before: ", s)
+    env._env.set_state(sorig)
+    s,r,done = env.step(np.array([0,0]))
+    print("state after: ",s)
+    print("state from env: ", env._env.lander.position, env._env.lander.linearVelocity,env._env.lander.angle, env._env.lander.angularVelocity)
+    #bib"""
+
+
+planner = RandomShootingPlanner(env, plan_horizon,N_samples, action_noise_sigma,discount_factor = 0.9)
+#planner = PIPlanner(env, plan_horizon, N_samples, lambda_=5, noise_mu=0,noise_sigma=1)
+#planner = CEMPlanner(env, plan_horizon, N_samples,top_candidates, N_iterations,discount_factor = 0.9)
 for i in range(1000):
     a = planner(s)
     print("action: ",a)
-    s,r,done,_ = e.step(a)
-    e.state = s
+    s,r,done= env.step(a)
+    env.state = s
     print("reward: ",r)
     #_,_,_,_ = e.step(a)
-    e.render()
+    env.render()
     if done:
         #s = env.reset()
-        s = e.reset()
+        s = env.reset()
         #e.state = s
 
     print(r)
