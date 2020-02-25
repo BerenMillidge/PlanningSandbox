@@ -67,8 +67,8 @@ if __name__ == '__main__':
     parser.add_argument("--PI_lambda_",type=float, default=1)
     parser.add_argument("--discount_factor", type=float, default=0.95)
     parser.add_argument("--logdir", type=str)
-    parser.add_argument("--max_episode_len", type=int, default=2)
-    parser.add_argument("--N_episodes", type=int, default=1)
+    parser.add_argument("--max_episode_len", type=int, default=200)
+    parser.add_argument("--N_episodes", type=int, default=10)
     parser.add_argument("--env_name", type=str)
 
     args = parser.parse_args()
