@@ -37,7 +37,6 @@ def main(args):
         n_candidates = args.N_samples,
         top_candidates = args.CEM_top_candidates,
         optimisation_iters=args.CEM_iterations,
-        action_noise_sigma = args.action_noise_sigma,
         discount_factor = args.discount_factor)
 
     results = np.zeros([args.N_episodes, args.max_episode_len])
