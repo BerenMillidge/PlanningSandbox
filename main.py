@@ -63,7 +63,7 @@ if __name__ == '__main__':
     parser.add_argument("--N_samples",type=int)
     parser.add_argument("--action_noise_sigma",type=float, default=1.0)
     parser.add_argument("--CEM_iterations", type=int, default=5)
-    parser.add_argument("--CEM_top_candidates", type=int, default=50)
+    parser.add_argument("--CEM_top_candidates", type=int, default=20)
     parser.add_argument("--PI_lambda_",type=float, default=1)
     parser.add_argument("--discount_factor", type=float, default=0.95)
     parser.add_argument("--logdir", type=str)
