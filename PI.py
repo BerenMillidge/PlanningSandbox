@@ -15,6 +15,7 @@ class PIPlanner(nn.Module):
         lambda_,
         noise_mu,
         noise_sigma,
+        save_states = False,
         device="cpu"
     ):
         super().__init__()
@@ -29,6 +30,8 @@ class PIPlanner(nn.Module):
         self.action_trajectory= torch.zeros([self.plan_horizon, self.action_size]).to(self.device)
 
         self.times_called = 0
+        if self.save_states:
+            self.states =[]
 
     def real_env_rollout(self, current_state, noise):
         noise = noise.cpu()
@@ -40,6 +43,8 @@ class PIPlanner(nn.Module):
                 action = self.action_trajectory[t].cpu() + noise[k,t,:]
                 action = action.numpy()
                 s, reward, _ = self.env.step(action)
+                if self.save_states:
+                    self.states.append(s)
                 costs[k,:] -= reward
         return None, costs.to(self.device)
 

@@ -12,7 +12,9 @@ class CEMPlanner(nn.Module):
         n_candidates,
         top_candidates,
         optimisation_iters,
+        action_noise_sigma,
         discount_factor=1,
+        save_states=False,
         device="cpu",
     ):
         super().__init__()
@@ -23,12 +25,16 @@ class CEMPlanner(nn.Module):
         self.optimisation_iters = optimisation_iters
         self.n_candidates = n_candidates
         self.top_candidates = top_candidates
+        self.action_noise_sigma = action_noise_sigma
         self.discount_factor = discount_factor
         self.device = device
         if self.discount_factor <1:
             self.discount_factor_matrix = self._initialize_discount_factor_matrix()
         else:
             self.discount_factor_matrix = np.ones([self.plan_horizon,1])
+
+        if self.save_states:
+            self.states = []
 
     def _initialize_discount_factor_matrix(self):
         discounts = np.zeros([self.plan_horizon,1])
@@ -50,6 +56,8 @@ class CEMPlanner(nn.Module):
                 #print(action)
                 #print(type(action))
                 s, reward, _ = self.env.step(action)
+                if self.save_states:
+                    self.states.append(s)
                 returns[k,t] = reward * self.discount_factor_matrix[t,:][0]
         return returns
 
@@ -60,7 +68,7 @@ class CEMPlanner(nn.Module):
         state = state.repeat(self.n_candidates, 1)
 
         action_mean = torch.zeros(self.plan_horizon, 1, self.action_size).to(self.device)
-        action_std_dev = torch.ones(self.plan_horizon, 1, self.action_size).to(self.device)
+        action_std_dev = torch.ones(self.plan_horizon, 1, self.action_size).to(self.device) * self.action_noise_sigma
 
         for _ in range(self.optimisation_iters):
             actions = action_mean + action_std_dev * torch.randn(
