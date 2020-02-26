@@ -27,7 +27,8 @@ def main(args):
          N_samples=args.N_samples,
          action_noise_sigma=args.action_noise_sigma,
          discount_factor = args.discount_factor,
-         save_states = args.save_states)
+         save_states = args.save_states,
+         save_actions = args.save_actions)
     elif args.planner_type == "PI":
         planner = PIPlanner(env,
         plan_horizon=args.plan_horizon,
@@ -35,7 +36,9 @@ def main(args):
         lambda_=args.PI_lambda_,
         noise_mu=0,
         noise_sigma=args.action_noise_sigma,
-        save_states = args.save_states)
+        save_states = args.save_states,
+        save_actions = args.save_actions,
+        )
     elif args.planner_type == "CEM":
         planner = CEMPlanner(env,
         plan_horizon=args.plan_horizon,
@@ -44,6 +47,7 @@ def main(args):
         optimisation_iters=args.CEM_iterations,
         action_noise_sigma = args.action_noise_sigma,
         save_states = args.save_states,
+        save_actions = args.save_actions,
         discount_factor = args.discount_factor)
 
     results = np.zeros([args.N_episodes, args.max_episode_len])
@@ -62,7 +66,10 @@ def main(args):
         np.save(args.logdir, results)
         if args.save_states:
             np.save(args.logdir + args.states_logdir, np.array(planner.states))
-        if args.save_states:
+        if args.save_actions:
+            np.save(args.logdir + args.actions_logdir, np.array(planner.actions))
+
+
 
 
 
@@ -82,6 +89,8 @@ if __name__ == '__main__':
     parser.add_argument("--env_name", type=str)
     parser.add_argument("--save_states", type=boolcheck, default=False)
     parser.add_argument("--states_logdir", type=str, default="_states.npy")
+    parser.add_argument("--save_actions", type=boolcheck, default=False)
+    parser.add_argument("--actions_logdir", type=str, default="_actions.npy")
 
     args = parser.parse_args()
     main(args)

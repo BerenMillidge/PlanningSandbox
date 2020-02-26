@@ -7,7 +7,14 @@ from copy import deepcopy
 # Just samples a bunch of trajectories at random and picks the best one.
 
 class RandomShootingPlanner(nn.Module):
-    def __init__(self, env,plan_horizon, N_samples, action_noise_sigma, discount_factor=1,save_states = False,device='cpu'):
+    def __init__(self, env,
+    plan_horizon,
+    N_samples,
+    action_noise_sigma,
+    discount_factor=1,
+    save_states = False,
+    save_actions=False,
+    device='cpu'):
         super().__init__()
         self.env = deepcopy(env)
         self.action_size = env.action_space.shape[0]
@@ -15,6 +22,8 @@ class RandomShootingPlanner(nn.Module):
         self.N_samples = N_samples
         self.action_noise_sigma = action_noise_sigma
         self.discount_factor = discount_factor
+        self.save_states = save_states
+        self.save_actions = save_actions
         self.device=device
         if self.discount_factor <1:
             self.discount_factor_matrix = self._initialize_discount_factor_matrix()
@@ -23,6 +32,8 @@ class RandomShootingPlanner(nn.Module):
 
         if self.save_states:
             self.states = []
+        if self.save_actions:
+            self.actions = []
 
     def _initialize_discount_factor_matrix(self):
         discounts = np.zeros([self.plan_horizon,1])
@@ -77,5 +88,7 @@ class RandomShootingPlanner(nn.Module):
                 s, reward, _ = self.env.step(action)
                 if self.save_states:
                     self.states.append(s)
+                if self.save_actions:
+                    self.actions.append(action)
                 returns[k,t] = reward * self.discount_factor_matrix[t,:][0]
         return returns

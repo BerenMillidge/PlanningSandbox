@@ -15,6 +15,7 @@ class CEMPlanner(nn.Module):
         action_noise_sigma,
         discount_factor=1,
         save_states=False,
+        save_actions=False,
         device="cpu",
     ):
         super().__init__()
@@ -28,6 +29,8 @@ class CEMPlanner(nn.Module):
         self.action_noise_sigma = action_noise_sigma
         self.discount_factor = discount_factor
         self.device = device
+        self.save_states = save_states
+        self.save_actions = save_actions
         if self.discount_factor <1:
             self.discount_factor_matrix = self._initialize_discount_factor_matrix()
         else:
@@ -35,6 +38,8 @@ class CEMPlanner(nn.Module):
 
         if self.save_states:
             self.states = []
+        if self.save_actions:
+            self.actions = []
 
     def _initialize_discount_factor_matrix(self):
         discounts = np.zeros([self.plan_horizon,1])
@@ -58,6 +63,8 @@ class CEMPlanner(nn.Module):
                 s, reward, _ = self.env.step(action)
                 if self.save_states:
                     self.states.append(s)
+                if self.save_actions:
+                    self.actions.append(action)
                 returns[k,t] = reward * self.discount_factor_matrix[t,:][0]
         return returns
 
